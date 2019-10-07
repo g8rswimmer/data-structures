@@ -45,54 +45,57 @@ func (t *Tree) Insert(obj Comparor) error {
 	}
 }
 
+func (t *Tree) minNode(n *node) *node {
+	curr := n
+	for curr != nil && curr.left != nil {
+		curr = curr.left
+	}
+	return curr
+}
+
 func (t *Tree) Delete(obj Comparor) error {
-	parent, child := t.get(obj)
+	return t.deleteNode(t.root, obj)
+}
+
+func (t *Tree) deleteNode(n *node, obj Comparor) error {
+	parent, child := t.get(n, obj)
 	if child == nil {
 		return errors.New("tree: unable to find node to delete")
 	}
 	switch {
-	case child.left == nil && child.right == nil:
-		t.deleteLeaf(parent, child)
-		return nil
 	case child.left == nil:
 		t.replace(parent, child, child.right)
 		return nil
 	case child.right == nil:
 		t.replace(parent, child, child.left)
 		return nil
+	default:
+		min := t.minNode(child.right)
+		child.data = min.data
+		return t.deleteNode(child.right, min.data)
 	}
-	return errors.New("something")
 }
 
 func (t *Tree) replace(parent, child, replace *node) {
 	switch {
-	case parent.left == child.left:
+	case parent.left == child:
 		parent.left = replace
-	case parent.right == child.right:
+	case parent.right == child:
 		parent.right = replace
-	}
-}
-
-func (t *Tree) deleteLeaf(parent, child *node) {
-	switch {
-	case parent.left == child.left:
-		parent.left = nil
-	case parent.right == child.right:
-		parent.right = nil
 	}
 }
 
 func (t *Tree) Has(obj Comparor) bool {
 
-	if _, n := t.get(obj); n != nil {
+	if _, n := t.get(t.root, obj); n != nil {
 		return true
 	}
 	return false
 }
 
-func (t *Tree) get(obj Comparor) (parent *node, child *node) {
-	parent = t.root
-	child = t.root
+func (t *Tree) get(n *node, obj Comparor) (parent *node, child *node) {
+	parent = n
+	child = n
 	for child != nil {
 		switch child.data.Compare(obj) {
 		case Left:
