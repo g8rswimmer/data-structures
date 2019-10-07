@@ -23,7 +23,7 @@ func (t *Tree) Insert(obj Comparor) error {
 	n := t.root
 	for {
 		switch n.data.Compare(obj) {
-		case Left, Equal:
+		case Left:
 			if n.left == nil {
 				n.left = &node{
 					data: obj,

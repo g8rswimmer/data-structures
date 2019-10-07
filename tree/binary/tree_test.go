@@ -76,34 +76,6 @@ func TestTree_Insert(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Insert Equal Node",
-			fields: fields{
-				root: &node{
-					data: &mockIntCompare{
-						data: 50,
-					},
-				},
-			},
-			args: args{
-				objs: []Comparor{
-					&mockIntCompare{
-						data: 50,
-					},
-				},
-			},
-			want: &node{
-				data: &mockIntCompare{
-					data: 50,
-				},
-				left: &node{
-					data: &mockIntCompare{
-						data: 50,
-					},
-				},
-			},
-			wantErr: false,
-		},
-		{
 			name: "Insert Tree",
 			fields: fields{
 				root: &node{
