@@ -5,15 +5,15 @@ import (
 	"fmt"
 )
 
-type node struct {
-	data interface{}
-	next *node
-}
-
 // List is the linked list structure
 type List struct {
 	start *node
 	size  int
+}
+
+// NewList creates a new list
+func NewList() *List {
+	return &List{}
 }
 
 // Append is place a linked node at the end of the list
