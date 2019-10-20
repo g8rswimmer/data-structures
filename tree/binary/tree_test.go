@@ -76,34 +76,6 @@ func TestTree_Insert(t *testing.T) {
 			wantErr: false,
 		},
 		{
-			name: "Insert Equal Node",
-			fields: fields{
-				root: &node{
-					data: &mockIntCompare{
-						data: 50,
-					},
-				},
-			},
-			args: args{
-				objs: []Comparor{
-					&mockIntCompare{
-						data: 50,
-					},
-				},
-			},
-			want: &node{
-				data: &mockIntCompare{
-					data: 50,
-				},
-				left: &node{
-					data: &mockIntCompare{
-						data: 50,
-					},
-				},
-			},
-			wantErr: false,
-		},
-		{
 			name: "Insert Tree",
 			fields: fields{
 				root: &node{
@@ -391,7 +363,7 @@ func TestTree_get(t *testing.T) {
 			tree := &Tree{
 				root: tt.fields.root,
 			}
-			gotParent, gotChild := tree.get(tt.args.obj)
+			gotParent, gotChild := tree.get(tree.root, tt.args.obj)
 			if !reflect.DeepEqual(gotParent, tt.wantParent) {
 				t.Errorf("Tree.get() gotParent = %v, want %v", gotParent, tt.wantParent)
 			}
@@ -1276,6 +1248,738 @@ func TestTree_Postorder(t *testing.T) {
 			}
 			if got := tree.Postorder(); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("Tree.Postorder() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTree_minNode(t *testing.T) {
+	type fields struct {
+		root *node
+	}
+	type args struct {
+		n *node
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   *node
+	}{
+		{
+			name:   "Min from root",
+			fields: fields{},
+			args: args{
+				n: &node{
+					data: &mockIntCompare{
+						data: 50,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 30,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 20,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 40,
+							},
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 70,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 60,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 80,
+							},
+						},
+					},
+				},
+			},
+			want: &node{
+				data: &mockIntCompare{
+					data: 20,
+				},
+			},
+		},
+		{
+			name:   "Min from right",
+			fields: fields{},
+			args: args{
+				n: &node{
+					data: &mockIntCompare{
+						data: 70,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 60,
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 80,
+						},
+					},
+				},
+			},
+			want: &node{
+				data: &mockIntCompare{
+					data: 60,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tree := &Tree{
+				root: tt.fields.root,
+			}
+			if got := tree.minNode(tt.args.n); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("Tree.minNode() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTree_Delete(t *testing.T) {
+	type fields struct {
+		root *node
+	}
+	type args struct {
+		obj Comparor
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		args    args
+		want    *node
+		wantErr bool
+	}{
+		{
+			name: "Delete Leaf",
+			fields: fields{
+				root: &node{
+					data: &mockIntCompare{
+						data: 50,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 30,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 20,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 40,
+							},
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 70,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 60,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 80,
+							},
+						},
+					},
+				},
+			},
+			args: args{
+				obj: &mockIntCompare{
+					data: 20,
+				},
+			},
+			want: &node{
+				data: &mockIntCompare{
+					data: 50,
+				},
+				left: &node{
+					data: &mockIntCompare{
+						data: 30,
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 40,
+						},
+					},
+				},
+				right: &node{
+					data: &mockIntCompare{
+						data: 70,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 60,
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 80,
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Delete has only one child",
+			fields: fields{
+				root: &node{
+					data: &mockIntCompare{
+						data: 50,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 30,
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 40,
+							},
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 70,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 60,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 80,
+							},
+						},
+					},
+				},
+			},
+			args: args{
+				obj: &mockIntCompare{
+					data: 30,
+				},
+			},
+			want: &node{
+				data: &mockIntCompare{
+					data: 50,
+				},
+				left: &node{
+					data: &mockIntCompare{
+						data: 40,
+					},
+				},
+				right: &node{
+					data: &mockIntCompare{
+						data: 70,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 60,
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 80,
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "Delete has two children",
+			fields: fields{
+				root: &node{
+					data: &mockIntCompare{
+						data: 50,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 40,
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 70,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 60,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 80,
+							},
+						},
+					},
+				},
+			},
+			args: args{
+				obj: &mockIntCompare{
+					data: 50,
+				},
+			},
+			want: &node{
+				data: &mockIntCompare{
+					data: 60,
+				},
+				left: &node{
+					data: &mockIntCompare{
+						data: 40,
+					},
+				},
+				right: &node{
+					data: &mockIntCompare{
+						data: 70,
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 80,
+						},
+					},
+				},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tree := &Tree{
+				root: tt.fields.root,
+			}
+			if err := tree.Delete(tt.args.obj); (err != nil) != tt.wantErr {
+				t.Errorf("Tree.Delete() error = %v, wantErr %v", err, tt.wantErr)
+			}
+			if reflect.DeepEqual(tree.root, tt.want) == false {
+				t.Errorf("Tree.Delete() got = %v, want %v", tree.root, tt.want)
+			}
+		})
+	}
+}
+
+func TestTree_subArray(t *testing.T) {
+	type fields struct {
+		root *node
+	}
+	type args struct {
+		main []interface{}
+		sub  []interface{}
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name:   "Has Same",
+			fields: fields{},
+			args: args{
+				main: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+				sub: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name:   "Has",
+			fields: fields{},
+			args: args{
+				main: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+					&mockIntCompare{
+						data: 4,
+					},
+				},
+				sub: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name:   "Nope",
+			fields: fields{},
+			args: args{
+				main: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 4,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+				sub: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name:   "Smaller",
+			fields: fields{},
+			args: args{
+				main: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+				},
+				sub: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tree := &Tree{
+				root: tt.fields.root,
+			}
+			if got := tree.subArray(tt.args.main, tt.args.sub); got != tt.want {
+				t.Errorf("Tree.subArray() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTree_in(t *testing.T) {
+	type fields struct {
+		root *node
+	}
+	type args struct {
+		main []interface{}
+		sub  []interface{}
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name:   "In Same",
+			fields: fields{},
+			args: args{
+				main: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+				sub: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name:   "In",
+			fields: fields{},
+			args: args{
+				main: []interface{}{
+					&mockIntCompare{
+						data: 6,
+					},
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+				sub: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name:   "Nope",
+			fields: fields{},
+			args: args{
+				main: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 5,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+				sub: []interface{}{
+					&mockIntCompare{
+						data: 1,
+					},
+					&mockIntCompare{
+						data: 8,
+					},
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tree := &Tree{
+				root: tt.fields.root,
+			}
+			if got := tree.in(tt.args.main, tt.args.sub); got != tt.want {
+				t.Errorf("Tree.in() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestTree_SubTree(t *testing.T) {
+	type fields struct {
+		root *node
+	}
+	type args struct {
+		sub *Tree
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   bool
+	}{
+		{
+			name: "Has Sub Tree",
+			fields: fields{
+				root: &node{
+					data: &mockIntCompare{
+						data: 50,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 30,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 20,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 40,
+							},
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 70,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 60,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 80,
+							},
+						},
+					},
+				},
+			},
+			args: args{
+				sub: &Tree{
+					root: &node{
+						data: &mockIntCompare{
+							data: 30,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 20,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 40,
+							},
+						},
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "No Sub Tree",
+			fields: fields{
+				root: &node{
+					data: &mockIntCompare{
+						data: 50,
+					},
+					left: &node{
+						data: &mockIntCompare{
+							data: 30,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 20,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 40,
+							},
+						},
+					},
+					right: &node{
+						data: &mockIntCompare{
+							data: 70,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 60,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 80,
+							},
+						},
+					},
+				},
+			},
+			args: args{
+				sub: &Tree{
+					root: &node{
+						data: &mockIntCompare{
+							data: 30,
+						},
+						left: &node{
+							data: &mockIntCompare{
+								data: 20,
+							},
+						},
+						right: &node{
+							data: &mockIntCompare{
+								data: 45,
+							},
+						},
+					},
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			tree := &Tree{
+				root: tt.fields.root,
+			}
+			if got := tree.SubTree(tt.args.sub); got != tt.want {
+				t.Errorf("Tree.SubTree() = %v, want %v", got, tt.want)
 			}
 		})
 	}
