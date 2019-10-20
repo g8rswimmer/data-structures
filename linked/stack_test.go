@@ -32,6 +32,9 @@ func TestStack_Push(t *testing.T) {
 					start: &node{
 						data: 5,
 					},
+					end: &node{
+						data: 5,
+					},
 					size: 1,
 				},
 			},
@@ -58,6 +61,9 @@ func TestStack_Push(t *testing.T) {
 							data: 5,
 						},
 					},
+					end: &node{
+						data: 5,
+					},
 					size: 2,
 				},
 			},
@@ -68,6 +74,12 @@ func TestStack_Push(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Stack{
 				list: tt.fields.list,
+			}
+			s.list.end = s.list.start
+			if s.list.end != nil {
+				for s.list.end.next != nil {
+					s.list.end = s.list.end.next
+				}
 			}
 			if err := s.Push(tt.args.data); (err != nil) != tt.wantErr {
 				t.Errorf("Stack.Push() error = %v, wantErr %v", err, tt.wantErr)
@@ -109,6 +121,9 @@ func TestStack_Pop(t *testing.T) {
 					start: &node{
 						data: 5,
 					},
+					end: &node{
+						data: 5,
+					},
 					size: 1,
 				},
 			},
@@ -146,6 +161,12 @@ func TestStack_Pop(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := &Stack{
 				list: tt.fields.list,
+			}
+			s.list.end = s.list.start
+			if s.list.end != nil {
+				for s.list.end.next != nil {
+					s.list.end = s.list.end.next
+				}
 			}
 			got, err := s.Pop()
 			if (err != nil) != tt.wantErr {
@@ -228,9 +249,17 @@ func TestStack_Size(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
-		want   int
+		want   uint
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Size",
+			fields: fields{
+				list: &List{
+					size: 4,
+				},
+			},
+			want: 4,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

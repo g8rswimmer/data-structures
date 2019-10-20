@@ -94,6 +94,9 @@ func (l *List) Delete(idx uint) error {
 	switch {
 	case idx == 0:
 		l.start = l.start.next
+		if l.start == nil {
+			l.end = nil
+		}
 	default:
 		curr := l.start
 		prev := l.start
